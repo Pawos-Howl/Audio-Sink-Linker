@@ -1,0 +1,5 @@
+# careful with this list
+# Device names can be gotten from 'pw-link -o' and 'pw-link -i'
+# just a note, open closed parenthesis, and then seperated by spaces, i keep forgetting this at times
+INPUT_DEVICE=("")
+OUTPUT_DEVICE=("")

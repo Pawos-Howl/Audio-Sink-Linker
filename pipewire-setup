@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Sets up three audio sinks, and links accordingly to mic and headset.
+
+# Links between games and sinks is left up to manual config.
+# Links between sinks and OBS is left up to OBS.
+
+# Device names can be gotten from 'pw-link -o' and 'pw-link -i'
+# MIC_DEVICE="alsa_input.usb-Generic_Realtek_Audio_USB_201701110001-00.analog-stereo"
+# HEADSET_DEVICE="jamesdsp_sink"
+#HEADSET_DEVICE="alsa_output.usb-Logitech_G733_Gaming_Headset-00.analog-stereo"
+
+# the source of the device list
+source "./pipewire-dev-list"
+
+SINK_ID_LOCATION="$HOME/.local/share/pipewire-link"
+
+# echo "Creating sinks"
+PIPEWIRE_SINKS_IN=$( pactl load-module module-null-sink media.class=Audio/Source/Virtual sink_name=syncsink-in  channel_map=stereo)
+PIPEWIRE_SINKS_OUT=$(pactl load-module module-null-sink media.class=Audio/Sink           sink_name=syncsink-out channel_map=stereo)
+
+# convert to for loop
+# pw-link "${MIC_DEVICE}":capture_FL syncsink-in:input_FL
+# pw-link "${MIC_DEVICE}":capture_FR syncsink-in:input_FR
+for i in ${INPUT_DEVICE[@]}; do
+    pw-link "${i}":capture_FL syncsink-in:input_FL
+    pw-link "${i}":capture_FR syncsink-in:input_FR
+done
+
+# pw-link syncsink-out:monitor_FL "${HEADSET_DEVICE}":playback_FL
+# pw-link syncsink-out:monitor_FR "${HEADSET_DEVICE}":playback_FR
+for i in ${OUTPUT_DEVICE[@]}; do
+    pw-link syncsink-out:monitor_FL "${i}":playback_FL
+    pw-link syncsink-out:monitor_FR "${i}":playback_FR
+done
+
+
+# echo "Saving module IDs to disk: ${SINK_ID_LOCATION}/OBS-*.id"
+mkdir -p "${SINK_ID_LOCATION}"
+echo "${PIPEWIRE_SINKS_IN}"  > "${SINK_ID_LOCATION}/syncsink-in.id"
+echo "${PIPEWIRE_SINKS_OUT}" > "${SINK_ID_LOCATION}/syncsink-out.id"
+
+echo "Done. Use pipewire-destroy to destroy these sinks."

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# See ~/.local/bin/obs-pipewire-setup
+
+SINK_ID_LOCATION="$HOME/.local/share/pipewire-link"
+
+# Check for sinks
+if [[ ! -f "${SINK_ID_LOCATION}/syncsink-in.id" ]]; then
+    echo "No link IDs found. Use obs-pipewire-setup first."
+    echo "If the link IDs are unknown, use 'pactl unload-module module-null-sink'."
+    exit 1
+fi
+
+# Find sink IDs
+PIPEWIRE_SINKS_IN=$( cat "${SINK_ID_LOCATION}/syncsink-in.id")
+PIPEWIRE_SINKS_OUT=$(cat "${SINK_ID_LOCATION}/syncsink-out.id")
+
+# Destroy sinks
+pactl unload-module "${PIPEWIRE_SINKS_IN}"
+pactl unload-module "${PIPEWIRE_SINKS_OUT}"
+
+# Remove files
+rm "${SINK_ID_LOCATION}/syncsink-in.id"
+rm "${SINK_ID_LOCATION}/syncsink-out.id"
