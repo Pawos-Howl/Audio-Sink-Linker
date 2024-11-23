@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#echo "stoping..."
+./pipewire-destroy
+
+#echo "restarting..."
+./pipewire-setup
